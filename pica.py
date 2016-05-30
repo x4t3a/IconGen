@@ -9,6 +9,7 @@ import os
 import random
 import shutil
 import sys
+import const
 
 
 def main():
@@ -19,7 +20,7 @@ def main():
     elif args.help:
         args.sendHelp()
         return
-    img = generateImg(ImgProps('RGB', args.size, getRandom(BACK_COLORS), getRandom(BODY_COLORS)))
+    img = generateImg(ImgProps('RGB', args.size, getRandom(const.BACK_COLORS), getRandom(const.BODY_COLORS)))
     sendImg(img)
     return
 
@@ -29,17 +30,18 @@ class Args:
         self.args = cgi.FieldStorage()
         self.size = (
             int(self.args[ 'size' ].value)
-            if ('size' in self.args) and (int(self.args[ 'size' ].value) > 50) and (self.args[ 'size' ].value.isdigit())
-            else 500
+            if (('size' in self.args) and (self.args[ 'size' ].value.isdigit()) and
+                (const.IMAGE_SIZE_MIN < int(self.args[ 'size' ].value) <= const.IMAGE_SIZE_MAX))
+            else const.IMAGE_SIZE_DEF
         )
         self.debug = (
             True
-            if ('debug' in self.args) and (self.args[ 'debug' ].value.lower() in ('yes', 'true', 't', '1'))
+            if ('debug' in self.args) and (self.args[ 'debug' ].value.lower() in ('yes', 'true', 'y', '1'))
             else False
         )
         self.help = (
             True
-            if ('help' in self.args) and (self.args[ 'help' ].value.lower() in ('yes', 'true', 't', '1')) and not self.debug
+            if ('help' in self.args) and (self.args[ 'help' ].value.lower() in ('yes', 'true', 'y', '1')) and not self.debug
             else False
         )
         return
@@ -60,12 +62,7 @@ class Args:
 
 
     def sendHelp(self):
-        help_string = (
-            b'Content-Type: text/plain\n\n'
-            b'  ** Help **\n'
-            b'size (>=50, default = 500)'
-        )
-        sys.stdout.buffer.write(help_string)
+        sys.stdout.buffer.write(const.HELP_STRING)
         return
 
 
@@ -74,25 +71,6 @@ def sendString(*strings):
         attach = b'' if string == '\n' else b' '
         sys.stdout.buffer.write(string.encode('utf-8') + attach)
     return 
-
-
-BACK_COLORS = [
-    (247, 202, 201), # Rose Quartz
-    (247, 120, 107), # Peach Echo
-    (145, 168, 208), # Serenity
-    (  3,  79, 132), # Snorkel Blue
-    (249, 231,  42), # Buttercup
-    (152, 221, 222), # Limpet Shell
-    (152, 150, 164), # Lilac Gray
-    (220,  68,  58), # Fiesta
-    (177, 143, 106), # Iced Coffee
-    (121, 199,  83), # Green Flash
-]
-
-
-BODY_COLORS = [
-    'aqua', 'azure', 'black', 'brown', 'red', 'blue', 'green', 'cyan',
-]
 
 
 def getRandom(lst):
