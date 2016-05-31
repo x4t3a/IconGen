@@ -20,7 +20,8 @@ def main():
     elif args.help:
         args.sendHelp()
         return
-    img = generateImg(ImgProps('RGB', args.size, getRandom(const.BACK_COLORS), getRandom(const.BODY_COLORS)))
+    body_color = args.body if args.body else getRandom(const.BODY_COLORS)
+    img = generateImg(ImgProps('RGB', args.size, getRandom(const.BACK_COLORS), body_color))
     sendImg(img)
     return
 
@@ -43,6 +44,11 @@ class Args:
             True
             if ('help' in self.args) and (self.args[ 'help' ].value.lower() in ('yes', 'true', 'y', '1')) and not self.debug
             else False
+        )
+        self.body = (
+            self.args[ 'body' ].value
+            if ('body' in self.args)
+            else None
         )
         return
 
